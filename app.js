@@ -1,12 +1,12 @@
 "use strict";
 
-// Matt's latest comment
+// New Comment Here
 
 const express = require("express");
 const cors = require('cors');
 const app = express();
 const https = require('https');
-const port = 3000
+const port = process.env.PORT || 3000;
 const checkout = require('./routes/checkout');
 
 // All access from all origins
