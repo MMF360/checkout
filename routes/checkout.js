@@ -52,33 +52,33 @@ router
 	})
 	.catch(error => console.error(error));
 
-	// Confirm the setup intent
-	function confirmSetupIntent(setupIntentID){
-		stripe.setupIntents.confirm(
-			setupIntentID,
-			{payment_method: paymentMethodID}
-			)
-		.then(setupIntent => {
-			setupIntentID = setupIntent.id;
-			updateCustomer();
-		})
+// Confirm the setup intent
+function confirmSetupIntent(setupIntentID){
+	stripe.setupIntents.confirm(
+		setupIntentID,
+		{payment_method: paymentMethodID}
+		)
+	.then(setupIntent => {
+		setupIntentID = setupIntent.id;
+		updateCustomer();
+	})
+	.catch(error => console.error(error));
+};
+
+	// Update the customer with the payment method
+	function updateCustomer(){
+		stripe.customers.update(
+			customerID,
+			{invoice_settings: {default_payment_method: paymentMethodID}}
+			)  
+		.then(customer => {
+			res.type('.js');
+			res.send({customerObject: customer});
+		}
+		)
 		.catch(error => console.error(error));
 	};
-
-		// Update the customer with the payment method
-		function updateCustomer(){
-			stripe.customers.update(
-				customerID,
-				{invoice_settings: {default_payment_method: paymentMethodID}}
-				)  
-			.then(customer => {
-				res.type('.js');
-				res.send({customerObject: customer});
-			}
-			)
-			.catch(error => console.error(error));
-		};
-	});
+});
 
 // Create Subscription Route
 router
@@ -87,6 +87,18 @@ router
 	red.redirect('https://www.enrollify.org');
 })
 .post((req, res) => {
+
+	var email = req.body.email;
+	var contactId;
+	var customObjectSub;
+	var subscription_id;
+	var customer_id;
+	var price_id;
+	var product_id;
+	var firstname;
+	var lastname;
+
+	console.log(req.body.email);
 
 	stripe.subscriptions.create({
 		customer: req.body.customerID,
@@ -106,12 +118,57 @@ router
 			invoice: subscription.latest_invoice
 		}
 
+		customObjectSub = {
+			subscription_id: subscription.id,
+			customer_id: subscription.customer,
+			price_id: subscription.items.data[0].price.id,
+			product_id: subscription.items.data[0].price.product
+		};
+
 		res.type('.js');
 		res.send({subscriptionOutput: subscriptionObject});
 		res.send(console.log(subscriptionObject));
-
+		findContact();
 	})
 	.catch(error => console.error(error));
+
+// update the contact in HubSpot with subscription info
+function findContact(){
+	var request = require("request");
+	var options = { method: 'GET',
+	url: 'https://api.hubapi.com/contacts/v1/contact/email/' + req.body.email + '/profile',
+	qs: { hapikey: process.env.HS_API_KEY }}
+
+	request(options, function (error, response, body) {
+		if (error) throw new Error(error);
+		var body = JSON.parse(body);
+		contactId = body.vid;
+		updateContact(contactId);
+	});
+}
+
+function updateContact(contactId){
+	var request = require("request");
+
+	var options = {
+		method: 'PATCH',
+		url: 'https://api.hubapi.com/crm/v3/objects/contacts/' + contactId,
+		qs: {hapikey: process.env.HS_API_KEY},
+		headers: {accept: 'application/json', 'content-type': 'application/json'},
+		body: {
+			properties: customObjectSub,
+		},
+		json: true
+	};
+
+	request(options, function (error, response, body) {
+		if (error) throw new Error(error);
+
+		console.log(body);
+
+	});
+};
+
 });
 
 
