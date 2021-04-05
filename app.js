@@ -1,7 +1,6 @@
 "use strict";
 
-// New Comment Here
-
+// Declare variables here
 const express = require("express");
 const cors = require('cors');
 const app = express();
