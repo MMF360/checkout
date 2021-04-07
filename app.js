@@ -19,7 +19,7 @@ app.use("/checkout", checkout);
 
 // For the home route
 app.get("/", (req, res) => {
-	res.send("Error");
+	res.send("Welcome");
 });
 
 
