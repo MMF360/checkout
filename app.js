@@ -2,11 +2,11 @@
 
 // Declare variables here
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
-const https = require('https');
+const https = require("https");
 const port = process.env.PORT || 3000;
-const checkout = require('./routes/checkout');
+const checkout = require("./routes/checkout");
 
 // All access from all origins
 app.use(cors());
@@ -19,13 +19,12 @@ app.use("/checkout", checkout);
 
 // For the home route
 app.get("/", (req, res) => {
-	res.send("Welcome");
+  res.send("Welcome to our site");
 });
 
-
-app.listen(port, err => {
-	if (err) {
-		return console.log("ERROR", err);
-	}
-	console.log(`Example app listening at http://localhost:${port}`)
-})
+app.listen(port, (err) => {
+  if (err) {
+    return console.log("ERROR", err);
+  }
+  console.log(`Example app listening at http://localhost:${port}`);
+});

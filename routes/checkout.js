@@ -144,7 +144,6 @@ function findContact(){
 		var body = JSON.parse(body);
 		contactId = body.vid;
 		updateContact(contactId);
-		console.log(contactId);
 	});
 }
 
