@@ -135,9 +135,12 @@ router
 // update the contact in HubSpot with subscription info
 function findContact(){
 	var request = require("request");
-	var options = { method: 'GET',
-	url: 'https://api.hubapi.com/contacts/v1/contact/email/' + req.body.email + '/profile',
-	qs: { hapikey: process.env.HS_API_KEY }}
+	var options = { 
+		method: 'GET',
+		url: 'https://api.hubapi.com/contacts/v1/contact/email/' + req.body.email + '/profile',
+		qs: { hapikey: process.env.HS_API_KEY },
+	  	headers: {accept: 'application/json'}
+	  };
 
 	request(options, function (error, response, body) {
 		if (error) throw new Error(error);
